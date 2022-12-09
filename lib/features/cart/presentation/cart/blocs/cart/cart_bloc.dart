@@ -20,8 +20,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   }
 
   double _calculateTotalPembayaran(List<Cart> listCart) {
+    var listCartChecked =
+        listCart.where((element) => element.isChecked == true);
     double total = 0;
-    for (var element in listCart) {
+    for (var element in listCartChecked) {
       total += element.price * element.quantity;
     }
     return total;
@@ -115,15 +117,18 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     });
   }
 
-  FutureOr<void> _onToogleCheckBox(event, emit) async {
+  FutureOr<void> _onToogleCheckBox(event, emit) {
     event as ToogleCheckBox;
-    var tempList = (state as CartSuccess).listCart;
+    List<Cart> tempList = List.from((state as CartSuccess).listCart);
     int index = tempList.indexWhere((element) => element.id == event.cart.id);
 
-    if (index == -1) return;
+    if (index == -1) return null;
     tempList[index].isChecked = !tempList[index].isChecked;
-    emit(CartSuccess(
+    emit(
+      CartSuccess(
         listCart: tempList,
-        totalPembayaran: _calculateTotalPembayaran(tempList)));
+        totalPembayaran: _calculateTotalPembayaran(tempList),
+      ),
+    );
   }
 }
